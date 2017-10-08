@@ -23,10 +23,11 @@ public class Main {
         printer.start();
 
         for (int i = 0; i < NUMBER_OF_JOBS; i++) {
+            int id = random.nextInt(users.length);
             printer.print(
                     new Job(
-                            i,
-                            users[random.nextInt(users.length)],
+                            id,
+                            users[id],
                             "Content is something random " + random.nextInt()
                     )
             );

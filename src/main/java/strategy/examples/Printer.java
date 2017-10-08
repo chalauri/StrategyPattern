@@ -1,7 +1,5 @@
 package main.java.strategy.examples;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -10,11 +8,10 @@ import java.util.Random;
 public class Printer extends Thread {
 
     private boolean shouldRun = true;
-    private List<Job> jobs;
+    private PrinterQueue printerQueue  = new SimpleFIFOPrinterQueue();
     private Random random = new Random();
 
     public Printer() {
-        this.jobs = new LinkedList<>();
     }
 
     @Override
@@ -22,25 +19,15 @@ public class Printer extends Thread {
         while (this.shouldRun) {
             try {
                 Thread.sleep(100);
-                Job j = null;
-                synchronized (this) {
-                    j = this.getNextJob();
-                }
+                Job j = this.printerQueue.getNextJob();
                 if (j != null) {
                     this.printJob(j);
-                    synchronized (this) {
-                        this.removeJob(j);
-                    }
                     this.informUser(j);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    private void removeJob(Job j) {
-        this.jobs.remove(0);
     }
 
     private void printJob(Job j) {
@@ -70,12 +57,7 @@ public class Printer extends Thread {
     }
 
     public synchronized void print(Job job){
-        this.jobs.add(job);
-    }
-
-
-    private Job getNextJob() {
-        return jobs.stream().findFirst().orElse(null);
+        this.printerQueue.addJob(job);
     }
 
     public void shutDownPrinter() {
